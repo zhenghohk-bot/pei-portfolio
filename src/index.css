@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Alumni+Sans+Collegiate+One&family=Anton&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * 主题：蓝绿透亮版（Lagoon）
+ * 首页为用户的蓝绿底图，其余区块统一白底 + 蓝绿点缀
+ * 换配色只需要改这里的一组变量（类名为历史遗留，值是蓝绿系）
+ */
+@layer base {
+  :root {
+    /* 近白底（微冷） */
+    --background: 180 25% 99%;
+    /* 近黑主文字 */
+    --foreground: 228 16% 13%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 228 16% 13%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 228 16% 13%;
+
+    /* 主按钮：近黑药丸 */
+    --primary: 228 16% 13%;
+    --primary-foreground: 180 25% 99%;
+
+    /* 浅蓝绿强调 */
+    --secondary: 174 55% 90%;
+    --secondary-foreground: 182 60% 24%;
+
+    --muted: 175 22% 94%;
+    --muted-foreground: 195 8% 40%;
+
+    --accent: 172 50% 74%;
+    --accent-foreground: 228 16% 13%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 178 16% 88%;
+    --input: 178 16% 88%;
+    --ring: 174 55% 62%;
+
+    /* 圆角系统：24px */
+    --radius: 1.5rem;
+
+    /* 蓝绿主题氛围色（类名沿用上版，值已换） */
+    --petal: 172 55% 70%;
+    --petal-light: 174 60% 91%;
+    --petal-deep: 182 65% 30%;
+    --pine: 228 16% 13%;
+    --pine-soft: 230 14% 28%;
+    --cream: 180 25% 99%;
+    --sage-light: 192 70% 88%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  ::selection {
+    background: hsl(var(--petal) / 0.45);
+  }
+}
+
+@layer utilities {
+  .font-mono-en {
+    font-family: 'Space Mono', ui-monospace, monospace;
+  }
+  .font-poster {
+    font-family: 'Anton', 'PingFang SC', sans-serif;
+  }
+  /* VIBE / CODE / SHIP 展示字体：Alumni Sans Collegiate One，字距 11% */
+  .font-display {
+    font-family: 'Alumni Sans Collegiate One', 'Anton', 'PingFang SC', sans-serif;
+    letter-spacing: 0.11em;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* 玻璃卡片 */
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-white/80 shadow-[0_8px_40px_-12px_hsl(178_45%_45%/0.16)];
+  }
+  /* 极光渐变背景：薄荷 + 青 + 天蓝 */
+  .bg-aurora {
+    background-image:
+      radial-gradient(ellipse 55% 45% at 18% 12%, hsl(160 70% 85% / 0.75), transparent 70%),
+      radial-gradient(ellipse 50% 45% at 85% 20%, hsl(195 85% 84% / 0.7), transparent 70%),
+      radial-gradient(ellipse 55% 50% at 75% 85%, hsl(180 70% 85% / 0.65), transparent 70%),
+      radial-gradient(ellipse 55% 45% at 15% 88%, hsl(140 60% 87% / 0.7), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 50% 50%, hsl(190 80% 92% / 0.5), transparent 75%);
+  }
+  /* 白色光点 */
+  .sparkle-dot {
+    background: white;
+    box-shadow: 0 0 14px 4px hsl(0 0% 100% / 0.9), 0 0 30px 8px hsl(180 90% 90% / 0.5);
+  }
+}
+
+/* 跑马灯 */
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee-x 36s linear infinite;
+}
+
+/* 微光粒子漂浮 */
+@keyframes sparkle-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.45; }
+  50% { transform: translateY(-12px) scale(1.12); opacity: 0.9; }
+}
+.animate-sparkle {
+  animation: sparkle-float 5s ease-in-out infinite;
+}
+
+/* 背景光斑缓慢漂移 */
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(26px, -22px) scale(1.07); }
+}
+.animate-drift {
+  animation: drift 14s ease-in-out infinite;
+}
+
+/* 底部光带流动 */
+@keyframes flow-x {
+  0% { transform: translateX(-6%); }
+  100% { transform: translateX(6%); }
+}
+.animate-flow {
+  animation: flow-x 9s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-sparkle,
+  .animate-drift,
+  .animate-flow {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}

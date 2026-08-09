@@ -1,0 +1,26 @@
+/* 容器：由父级布局控制位置，居中放置，后排卡片从右上露出 */
+.card-swap-container {
+  position: relative;
+  margin: 0 auto;
+
+  perspective: 900px;
+  overflow: visible;
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 16px;
+  border: 1px solid hsl(178 16% 88%);
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+
+  box-shadow: 0 12px 40px -14px hsl(178 40% 35% / 0.22);
+
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
