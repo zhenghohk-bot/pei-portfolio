@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
+import { asset } from '../lib/asset'
 
 /**
  * 双面头像：默认卡通版，点击 3D 翻面切换真人照
@@ -23,7 +24,7 @@ export default function AvatarFlip({ className = '' }: { className?: string }) {
       >
         {/* 正面：卡通头像 */}
         <img
-          src="/avatar-cartoon.webp"
+          src={asset('/avatar-cartoon.webp')}
           alt="卡通头像"
           draggable={false}
           className="w-full h-auto drop-shadow-[0_18px_36px_hsl(178_40%_40%/0.28)]"
@@ -31,7 +32,7 @@ export default function AvatarFlip({ className = '' }: { className?: string }) {
         />
         {/* 背面：真人照片 */}
         <img
-          src="/avatar-real.webp"
+          src={asset('/avatar-real.webp')}
           alt="真人照片"
           draggable={false}
           className="absolute inset-0 w-full h-auto drop-shadow-[0_18px_36px_hsl(178_40%_40%/0.28)]"
@@ -40,7 +41,7 @@ export default function AvatarFlip({ className = '' }: { className?: string }) {
         {/* 减弱动效时直接淡入淡出 */}
         {reduce && flipped && (
           <img
-            src="/avatar-real.webp"
+            src={asset('/avatar-real.webp')}
             alt="真人照片"
             draggable={false}
             className="absolute inset-0 w-full h-auto"

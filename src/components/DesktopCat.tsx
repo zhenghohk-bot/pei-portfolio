@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { asset } from '../lib/asset'
 
 /* 橘猫全形态（用户手工裁切贴纸图），顺序 = 总览图从左到右 */
 const poses = {
-  sitting: { src: '/cats/sitting.webp', alt: '端坐回望的橘猫' },
-  stretch: { src: '/cats/stretch.webp', alt: '伸懒腰的橘猫' },
-  angry: { src: '/cats/angry.webp', alt: '炸毛的橘猫' },
-  butterfly: { src: '/cats/butterfly.webp', alt: '扑蝴蝶的橘猫' },
-  yarn: { src: '/cats/yarn.webp', alt: '玩毛线球的橘猫' },
-  sleeping: { src: '/cats/sleeping.webp', alt: '蜷着睡觉的橘猫' },
+  sitting: { src: asset('/cats/sitting.webp'), alt: '端坐回望的橘猫' },
+  stretch: { src: asset('/cats/stretch.webp'), alt: '伸懒腰的橘猫' },
+  angry: { src: asset('/cats/angry.webp'), alt: '炸毛的橘猫' },
+  butterfly: { src: asset('/cats/butterfly.webp'), alt: '扑蝴蝶的橘猫' },
+  yarn: { src: asset('/cats/yarn.webp'), alt: '玩毛线球的橘猫' },
+  sleeping: { src: asset('/cats/sleeping.webp'), alt: '蜷着睡觉的橘猫' },
 } as const
 
 type PoseName = keyof typeof poses
