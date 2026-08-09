@@ -50,6 +50,7 @@ export default function Hero() {
             <motion.div
               animate={reduce ? undefined : { y: [0, -10, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+              className="relative inline-block"
             >
               <motion.h1
                 initial={reduce ? false : { opacity: 0, scale: 0.94, y: 16 }}
@@ -63,6 +64,15 @@ export default function Hero() {
               >
                 PEIZHEN
               </motion.h1>
+              {/* 移动端：小猫坐在 PEIZHEN 右侧（桌面端猫在右下角） */}
+              <motion.div
+                initial={reduce ? false : { opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
+                className="md:hidden absolute left-full bottom-0 ml-3 w-16"
+              >
+                <DesktopCat />
+              </motion.div>
             </motion.div>
 
             {/* 自我介绍：打字机效果，与名字之间留出呼吸感 */}
@@ -90,12 +100,12 @@ export default function Hero() {
         <div className="animate-flow absolute -inset-y-6 left-[-25%] w-[150%] blur-3xl [animation-delay:-4.5s] [animation-direction:alternate-reverse] bg-[linear-gradient(80deg,transparent_20%,hsl(190_80%_82%/0.4)_45%,hsl(160_70%_75%/0.35)_65%,transparent_85%)]" />
       </div>
 
-      {/* 桌宠橘猫：右下角自主生活，点击互动。底部与左下 CTA 行（pb-12/md:pb-16）同一水平线 */}
+      {/* 桌宠橘猫：桌面端在右下角；移动端在 PEIZHEN 右侧（见上方） */}
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute right-10 md:right-20 bottom-12 md:bottom-16 w-28 md:w-36 lg:w-40 z-10"
+        className="hidden md:block absolute md:right-20 md:bottom-16 md:w-36 lg:w-40 z-10"
       >
         <DesktopCat />
       </motion.div>

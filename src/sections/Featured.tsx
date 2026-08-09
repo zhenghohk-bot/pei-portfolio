@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Github } from 'lucide-react'
@@ -102,6 +102,9 @@ export default function Featured() {
   const reduce = useReducedMotion()
   const navigate = useNavigate()
   const [active, setActive] = useState(0)
+  /* 移动端横滑轮播：当前卡下标 + 滚动容器 */
+  const [mobileActive, setMobileActive] = useState(0)
+  const mobileRef = useRef<HTMLDivElement>(null)
   /* 三档响应式：后排卡片向右上错位；≥1536px 大卡 / 1280-1536px 标准 / 1024-1280px 收窄 */
   const xwide = useMediaQuery('(min-width: 1536px)')
   const wide = useMediaQuery('(min-width: 1280px)')
@@ -213,19 +216,39 @@ export default function Featured() {
             </p>
           </div>
 
-          {/* 移动端：纵向完整卡片列表，不用叠卡，四个项目直接可见 */}
-          <div className="md:hidden flex flex-col gap-5">
-            {featured.map((p, i) => (
-              <div
-                key={p.id}
-                onClick={() => goDetail(i)}
-                role="button"
-                aria-label={`查看 ${p.title} 项目详情`}
-                className="relative w-full rounded-2xl overflow-hidden border border-[#e8e6e0] bg-white shadow-[0_12px_40px_-14px_hsl(178_40%_35%/0.22)] cursor-pointer"
-              >
-                <CardContent project={p} />
-              </div>
-            ))}
+          {/* 移动端：单卡横滑轮播，一屏聚焦一个项目，01/04 指示 */}
+          <div className="md:hidden -mx-6">
+            <div
+              ref={mobileRef}
+              onScroll={(e) => {
+                const el = e.currentTarget
+                const card = el.querySelector<HTMLElement>('[data-card]')
+                if (!card) return
+                const step = card.offsetWidth + 16
+                setMobileActive(
+                  Math.max(0, Math.min(featured.length - 1, Math.round(el.scrollLeft / step)))
+                )
+              }}
+              className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {featured.map((p, i) => (
+                <div
+                  key={p.id}
+                  data-card
+                  onClick={() => goDetail(i)}
+                  role="button"
+                  aria-label={`查看 ${p.title} 项目详情`}
+                  className="relative w-[86%] shrink-0 snap-center rounded-2xl overflow-hidden border border-[#e8e6e0] bg-white shadow-[0_12px_40px_-14px_hsl(178_40%_35%/0.22)] cursor-pointer"
+                >
+                  <CardContent project={p} />
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-center font-mono-en text-sm" style={{ color: COLOR_INK_SOFT }}>
+              {String(mobileActive + 1).padStart(2, '0')}
+              <span className="mx-1.5">/</span>
+              {String(featured.length).padStart(2, '0')}
+            </p>
           </div>
         </div>
       </div>
