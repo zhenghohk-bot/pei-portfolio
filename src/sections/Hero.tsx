@@ -69,7 +69,7 @@ export default function Hero() {
                 initial={reduce ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
-                className="md:hidden absolute left-full bottom-0 ml-3 w-16"
+                className="md:hidden absolute left-full -bottom-3 ml-3 w-16"
               >
                 <DesktopCat />
               </motion.div>
