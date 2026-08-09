@@ -108,6 +108,8 @@ export default function Featured() {
   /* 三档响应式：后排卡片向右上错位；≥1536px 大卡 / 1280-1536px 标准 / 1024-1280px 收窄 */
   const xwide = useMediaQuery('(min-width: 1536px)')
   const wide = useMediaQuery('(min-width: 1280px)')
+  /* 仅桌面端启用左边缘锁定；移动端用默认 px-6，避免 calc 在窄屏算出负值 */
+  const isLg = useMediaQuery('(min-width: 1024px)')
   const tier = xwide ? '2xl' : wide ? 'xl' : 'lg'
   const swap =
     tier === '2xl'
@@ -125,13 +127,17 @@ export default function Featured() {
         <div className="animate-drift absolute bottom-[5%] right-[-4%] w-[24rem] h-[24rem] rounded-full bg-petal-light/70 blur-3xl [animation-delay:-7s]" />
       </div>
 
-      {/* 左边缘锁定在原 max-w-7xl 的位置，只向右扩展，宽屏下叠卡更靠右 */}
+      {/* 左边缘锁定在原 max-w-7xl 的位置，只向右扩展，宽屏下叠卡更靠右（仅桌面端） */}
       <div
         className="relative mx-auto px-6"
-        style={{
-          paddingLeft:
-            'min(max(24px, calc((100vw - 1280px) / 2 + 24px)), calc(100vw - 1304px))',
-        }}
+        style={
+          isLg
+            ? {
+                paddingLeft:
+                  'min(max(24px, calc((100vw - 1280px) / 2 + 24px)), calc(100vw - 1304px))',
+              }
+            : undefined
+        }
       >
         <motion.p
           initial={reduce ? false : { opacity: 0, y: 16 }}
@@ -144,9 +150,9 @@ export default function Featured() {
           Selected Works · 重点项目
         </motion.p>
 
-        <div className="grid lg:grid-cols-[3fr_9fr] gap-12 lg:gap-10 items-center">
+        <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[3fr_9fr] gap-12 lg:gap-10 items-center">
           {/* 左列：单组宣言。组间距 64-80px，标题与说明同容器、左对齐、间距收紧 */}
-          <div className="flex flex-col gap-16 md:gap-20">
+          <div className="min-w-0 flex flex-col gap-16 md:gap-20">
             {vibeCodeShip.map((item, i) => (
               <motion.div
                 key={item.word}
@@ -217,7 +223,7 @@ export default function Featured() {
           </div>
 
           {/* 移动端：单卡横滑轮播，一屏聚焦一个项目，01/04 指示 */}
-          <div className="md:hidden -mx-6">
+          <div className="md:hidden min-w-0 -mx-6">
             <div
               ref={mobileRef}
               onScroll={(e) => {
