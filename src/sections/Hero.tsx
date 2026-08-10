@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowDownRight, Clapperboard } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Clapperboard } from 'lucide-react'
 import { site } from '../content'
 import AvatarFlip from '../components/AvatarFlip'
 import DesktopCat from '../components/DesktopCat'
@@ -79,7 +79,7 @@ export default function Hero() {
             <motion.div {...fadeUp(0.4)} className="mt-12 md:mt-16 max-w-md mx-auto md:mx-0">
               <TextType
                 as="p"
-                text="Hi，我是佩珍！我是 ENFP，喜欢交流，也总会被新问题和大胆的想法吸引。我正在探索与实践 Agent Workflow、模型评测与 AI Native 交互，也对 AIGC 影视与视觉叙事很感兴趣～"
+                text="Hi，我是佩珍！ENFP 人，喜欢交流，也总会被新问题和大胆的想法吸引。我目前正在探索与实践 Agent Workflow、AI Native 交互与模型评测，对 AIGC 影视与视觉叙事也很感兴趣～"
                 typingSpeed={45}
                 initialDelay={500}
                 loop={false}
@@ -135,7 +135,8 @@ export default function Hero() {
               className="inline-flex items-center gap-1.5 text-sm text-petal-deep hover:text-pine transition-colors"
             >
               <Clapperboard size={15} />
-              AI 影像实验 ↗
+              AI 影像实验
+              <ArrowUpRight size={14} />
             </a>
           </motion.div>
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, FileText, Play, Rocket, Award } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, X, Github, FileText, Play, Rocket, Award } from 'lucide-react'
 import { featured, projectDetails, type ProjectLink as Link_ } from '../content'
 import Backdrop from '../components/Backdrop'
 
@@ -215,7 +215,8 @@ export default function ProjectDetail() {
                 rel="noreferrer"
                 className="underline underline-offset-4 decoration-[#819BF3]/60 hover:decoration-[#819BF3] ml-1"
               >
-                在 Bilibili 打开 ↗
+                在 Bilibili 打开
+                <ArrowUpRight size={12} className="inline -mt-0.5" />
               </a>
             </p>
           </motion.section>
@@ -241,7 +242,8 @@ export default function ProjectDetail() {
                 rel="noreferrer"
                 className="underline underline-offset-4 decoration-[#819BF3]/60 hover:decoration-[#819BF3] ml-1"
               >
-                在新标签页打开 ↗
+                在新标签页打开
+                <ArrowUpRight size={12} className="inline -mt-0.5" />
               </a>
             </p>
           </motion.section>
