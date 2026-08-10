@@ -117,7 +117,7 @@ export default function ProjectDetail() {
       <main className="relative max-w-4xl mx-auto px-6 pt-28 pb-24">
         {/* 头部：名称 + 元信息 */}
         <motion.div {...fadeUp(0)}>
-          <p className="font-mono-en text-xs tracking-[0.3em] text-petal-deep uppercase">
+          <p className="font-mono-en text-xs tracking-[0.3em] text-foreground/80 uppercase">
             {project.kind}
           </p>
           <h1
@@ -126,14 +126,14 @@ export default function ProjectDetail() {
           >
             {project.title}
           </h1>
-          <p className="font-mono-en text-sm text-petal-deep mt-2 italic">{project.enSub}</p>
+          <p className="font-mono-en text-sm text-foreground/80 mt-2 italic">{project.enSub}</p>
 
           <div className="mt-5 flex flex-wrap gap-2 text-xs">
             <span className="px-3 py-1.5 rounded-full glass-card text-foreground/75">{project.period}</span>
             <span className="px-3 py-1.5 rounded-full glass-card text-foreground/75">{project.kind}</span>
             <span className="px-3 py-1.5 rounded-full glass-card text-foreground/75">{project.role}</span>
             {project.award && (
-              <span className="px-3 py-1.5 rounded-full bg-petal-light/80 text-petal-deep font-medium inline-flex items-center gap-1.5">
+              <span className="px-3 py-1.5 rounded-full glass-card text-foreground/75 inline-flex items-center gap-1.5">
                 <Award size={13} />
                 {project.award}
               </span>
@@ -157,7 +157,7 @@ export default function ProjectDetail() {
           <div className="flex flex-col gap-4">
             {project.resumePoints.map((p, i) => (
               <div key={p.title} className="glass-card rounded-3xl p-6 flex gap-5">
-                <span className="font-poster text-2xl text-petal-deep/70 shrink-0 w-8">
+                <span className="font-poster text-2xl text-[#819BF3] shrink-0 w-8">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div>
@@ -178,11 +178,11 @@ export default function ProjectDetail() {
             <div className="flex flex-col gap-8">
               {(project.readme ?? project.findings)!.map((sec) => (
                 <div key={sec.heading}>
-                  <h3 className="font-bold text-petal-deep">{sec.heading}</h3>
+                  <h3 className="font-bold text-foreground">{sec.heading}</h3>
                   <ul className="mt-3 flex flex-col gap-2.5">
                     {sec.points.map((pt) => (
                       <li key={pt} className="flex gap-3 text-sm text-muted-foreground leading-relaxed">
-                        <span aria-hidden className="mt-2 w-1.5 h-1.5 rounded-full bg-petal shrink-0" />
+                        <span aria-hidden className="mt-2 w-1.5 h-1.5 rounded-full bg-[#819BF3] shrink-0" />
                         {pt}
                       </li>
                     ))}
@@ -213,7 +213,7 @@ export default function ProjectDetail() {
                 href="https://www.bilibili.com/video/BV1jfu26QE1K/"
                 target="_blank"
                 rel="noreferrer"
-                className="underline underline-offset-4 decoration-petal-deep hover:decoration-[#819BF3] ml-1"
+                className="underline underline-offset-4 decoration-[#819BF3]/60 hover:decoration-[#819BF3] ml-1"
               >
                 在 Bilibili 打开 ↗
               </a>
@@ -239,7 +239,7 @@ export default function ProjectDetail() {
                 href={project.embed.url}
                 target="_blank"
                 rel="noreferrer"
-                className="underline underline-offset-4 decoration-petal-deep hover:decoration-[#819BF3] ml-1"
+                className="underline underline-offset-4 decoration-[#819BF3]/60 hover:decoration-[#819BF3] ml-1"
               >
                 在新标签页打开 ↗
               </a>
