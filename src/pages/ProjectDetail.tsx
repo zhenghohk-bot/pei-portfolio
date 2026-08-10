@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, FileText, 
 import { featured, projectDetails, type ProjectLink as Link_ } from '../content'
 import Backdrop from '../components/Backdrop'
 
-const COLOR_NAME = '#2F5D50'
+const COLOR_NAME = '#454F9E'
 
 /** 单张截图：圆角卡片 + 下方说明，cls 可单独控制缩放/微调；支持点击放大 */
 function GalleryFigure({ g, onOpen }: { g: { src: string; caption: string; cls?: string }; onOpen?: () => void }) {
@@ -49,8 +49,8 @@ function DetailLink({ link }: { link: Link_ }) {
       rel="noreferrer"
       className={
         primary
-          ? 'inline-flex items-center gap-2 text-sm px-5 py-2.5 rounded-full bg-pine text-cream hover:bg-pine/85 transition-colors'
-          : 'inline-flex items-center gap-2 text-sm px-5 py-2.5 rounded-full border border-border text-foreground/75 hover:border-pine hover:text-pine transition-colors'
+          ? 'inline-flex items-center gap-2 text-sm px-5 py-2.5 rounded-full bg-[#819BF3] text-white hover:bg-[#6B83EC] transition-colors'
+          : 'inline-flex items-center gap-2 text-sm px-5 py-2.5 rounded-full border border-border text-foreground/75 hover:border-[#819BF3] hover:text-[#454F9E] transition-colors'
       }
     >
       {icon}
@@ -213,7 +213,7 @@ export default function ProjectDetail() {
                 href="https://www.bilibili.com/video/BV1jfu26QE1K/"
                 target="_blank"
                 rel="noreferrer"
-                className="underline underline-offset-4 decoration-petal-deep hover:decoration-pine ml-1"
+                className="underline underline-offset-4 decoration-petal-deep hover:decoration-[#819BF3] ml-1"
               >
                 在 Bilibili 打开 ↗
               </a>
@@ -239,7 +239,7 @@ export default function ProjectDetail() {
                 href={project.embed.url}
                 target="_blank"
                 rel="noreferrer"
-                className="underline underline-offset-4 decoration-petal-deep hover:decoration-pine ml-1"
+                className="underline underline-offset-4 decoration-petal-deep hover:decoration-[#819BF3] ml-1"
               >
                 在新标签页打开 ↗
               </a>
@@ -296,9 +296,9 @@ export default function ProjectDetail() {
             {prev ? (
               <Link
                 to={`/project/${prev.id}`}
-                className="group flex items-center gap-3 rounded-2xl glass-card px-5 py-4 hover:border-pine transition-colors max-w-[38%]"
+                className="group flex items-center gap-3 rounded-2xl glass-card px-5 py-4 hover:border-[#819BF3] transition-colors max-w-[38%]"
               >
-                <ArrowLeft size={16} className="shrink-0 text-muted-foreground group-hover:text-pine transition-colors" />
+                <ArrowLeft size={16} className="shrink-0 text-muted-foreground group-hover:text-[#454F9E] transition-colors" />
                 <span className="min-w-0">
                   <span className="block text-[11px] text-muted-foreground">上一个项目</span>
                   <span className="block text-sm font-semibold truncate">{prev.title}</span>
@@ -310,7 +310,7 @@ export default function ProjectDetail() {
 
             <Link
               to="/"
-              className="inline-flex items-center gap-2 bg-pine text-cream px-6 py-3 rounded-full text-sm font-medium hover:bg-pine/85 transition-colors self-center shrink-0"
+              className="inline-flex items-center gap-2 bg-[#819BF3] text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-[#6B83EC] transition-colors self-center shrink-0"
             >
               返回首页
             </Link>
@@ -318,13 +318,13 @@ export default function ProjectDetail() {
             {next ? (
               <Link
                 to={`/project/${next.id}`}
-                className="group flex items-center gap-3 rounded-2xl glass-card px-5 py-4 hover:border-pine transition-colors max-w-[38%] text-right justify-end"
+                className="group flex items-center gap-3 rounded-2xl glass-card px-5 py-4 hover:border-[#819BF3] transition-colors max-w-[38%] text-right justify-end"
               >
                 <span className="min-w-0">
                   <span className="block text-[11px] text-muted-foreground">下一个项目</span>
                   <span className="block text-sm font-semibold truncate">{next.title}</span>
                 </span>
-                <ArrowRight size={16} className="shrink-0 text-muted-foreground group-hover:text-pine transition-colors" />
+                <ArrowRight size={16} className="shrink-0 text-muted-foreground group-hover:text-[#454F9E] transition-colors" />
               </Link>
             ) : (
               <span className="w-[38%]" />

@@ -1,20 +1,23 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ExternalLink, Github, LoaderCircle } from 'lucide-react'
 import { moreWorks } from '../content'
 import Backdrop from '../components/Backdrop'
 
 /**
  * More Work 的站内 PDF 查看页：
- * 顶栏返回 + 项目名 + 视频（如有）+ 嵌入 PDF，底部可直达上一个 / 下一个作品
+ * 顶栏返回 + 项目名 + GitHub（如有）+ 视频（如有）+ 嵌入 PDF，底部可直达上一个 / 下一个作品
  */
 export default function WorkPdf() {
   const { id } = useParams()
   const reduce = useReducedMotion()
+  /* PDF iframe 加载完成后才淡入，加载期间先显示封面占位 */
+  const [pdfReady, setPdfReady] = useState(false)
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    setPdfReady(false)
   }, [id])
 
   const idx = moreWorks.findIndex((w) => w.id === id)
@@ -58,15 +61,28 @@ export default function WorkPdf() {
                 <span className="font-mono-en ml-3">{work.period}</span>
               </p>
             </div>
-            <a
-              href={work.link}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-pine transition-colors shrink-0"
-            >
-              <ExternalLink size={13} />
-              在新标签页打开 PDF
-            </a>
+            <div className="flex items-center gap-4 shrink-0">
+              {work.github && (
+                <a
+                  href={work.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Github size={13} />
+                  GitHub 仓库
+                </a>
+              )}
+              <a
+                href={work.link}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-pine transition-colors"
+              >
+                <ExternalLink size={13} />
+                在新标签页打开 PDF
+              </a>
+            </div>
           </div>
         </motion.div>
 
@@ -93,11 +109,29 @@ export default function WorkPdf() {
           className="mt-10"
         >
           <h2 className="text-xl font-bold tracking-tight mb-4">完整汇报 PDF</h2>
-          <div className="rounded-3xl overflow-hidden glass-card">
+          <div className="relative rounded-3xl overflow-hidden glass-card">
+            {/* 加载过渡：封面占位 + 提示，PDF 就绪后淡出（PDF 已做无损线性化，可边下边显示） */}
+            <div
+              aria-hidden={pdfReady}
+              className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-white transition-opacity duration-500 ${
+                pdfReady ? 'opacity-0 pointer-events-none' : 'opacity-100'
+              }`}
+            >
+              <img
+                src={work.cover}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover opacity-25 blur-sm"
+              />
+              <LoaderCircle size={26} className="relative animate-spin text-foreground/60" />
+              <p className="relative text-sm text-foreground/70">PDF 加载中，线性化后可边下边看…</p>
+            </div>
             <iframe
               src={work.link}
               title={`${work.title} PDF`}
-              className="w-full h-[78vh] border-0 bg-white"
+              onLoad={() => setPdfReady(true)}
+              className={`w-full h-[78vh] border-0 bg-white transition-opacity duration-500 ${
+                pdfReady ? 'opacity-100' : 'opacity-0'
+              }`}
             />
           </div>
         </motion.section>

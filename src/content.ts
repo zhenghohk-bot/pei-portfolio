@@ -389,6 +389,7 @@ export type MoreWork = {
   focus?: string // object-position，竖裁时对准主体
   linkLabel?: string
   link?: string
+  github?: string // 公开仓库地址
   video?: string // 演示视频，新标签页播放
   size?: 'lg' | 'md' | 'sm' // 自由排布时的相对尺寸
   rotate?: number // 轻微旋转角度
@@ -442,6 +443,8 @@ export const moreWorks: MoreWork[] = [
     ratio: 'landscape',
     link: asset('/works/blender-exoskeleton.pdf'),
     linkLabel: '阅读完整 PDF',
+    github: 'https://github.com/zhenghohk-bot/Blender-Exoskeleton',
+    video: asset('/works/blender-demo.mp4'),
     size: 'md',
     rotate: -1.2,
   },

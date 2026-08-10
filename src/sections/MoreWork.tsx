@@ -9,6 +9,14 @@ const sizeCls: Record<NonNullable<MoreWork['size']>, string> = {
   sm: 'md:w-[76%]',
 }
 
+/* 悬停/触摸卡片时低优先级后台预取 PDF（浏览器会缓存），点开查看页近似秒开 */
+const prefetched = new Set<string>()
+function prefetchPdf(href?: string) {
+  if (!href || prefetched.has(href)) return
+  prefetched.add(href)
+  fetch(href, { priority: 'low' } as RequestInit).catch(() => {})
+}
+
 function WorkItem({
   work,
   index,
@@ -36,6 +44,8 @@ function WorkItem({
         to={`/work/${work.id}`}
         className="group block"
         title={`${work.title} · 查看完整 PDF`}
+        onMouseEnter={() => prefetchPdf(work.link)}
+        onTouchStart={() => prefetchPdf(work.link)}
       >
         <div
           className={`rounded-3xl overflow-hidden glass-card ${
