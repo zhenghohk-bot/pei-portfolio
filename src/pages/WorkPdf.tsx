@@ -43,7 +43,6 @@ function Slideshow({
   pages,
   title,
   accent,
-  accent,
   allowFullscreen = false,
   onZoom,
 }: {
