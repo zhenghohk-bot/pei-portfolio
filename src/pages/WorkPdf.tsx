@@ -5,8 +5,8 @@ import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, Play, Paus
 import { moreWorks } from '../content'
 import Backdrop from '../components/Backdrop'
 
-/* 放映模式试点项目，验收通过后再同步到其余更多实践项目 */
-const SLIDESHOW_DEMO_IDS = ['yiqida']
+/* 放映模式已验收，全部更多实践项目启用 */
+const SLIDESHOW_DEMO_IDS = ['yiqida', 'thyroid-service', 'culture-game', 'blender-exoskeleton', 'muselens']
 
 /* 浏览模式切换：放映 / 滚动，选中态用项目主题色 */
 function ModeToggle({
