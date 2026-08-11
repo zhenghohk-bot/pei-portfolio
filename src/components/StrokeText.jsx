@@ -58,21 +58,34 @@ const StrokeText = ({
 
     const measure = () => {
       if (cancelled || !strokeTextRef.current) return;
-      let bbox;
+      let bbox = null;
       try {
         bbox = strokeTextRef.current.getBBox();
       } catch {
-        return;
+        bbox = null;
       }
-      if (!bbox || !bbox.width) return;
 
       const pad = Math.max(Number(strokeWidth) || 1, fontSize * 0.1);
-      const next = {
-        x: bbox.x - pad,
-        y: bbox.y - pad,
-        width: bbox.width + pad * 2,
-        height: bbox.height + pad * 2
-      };
+      let next;
+      if (bbox && bbox.width) {
+        next = {
+          x: bbox.x - pad,
+          y: bbox.y - pad,
+          width: bbox.width + pad * 2,
+          height: bbox.height + pad * 2
+        };
+      } else {
+        /* 兜底：个别 webview（如微信内置浏览器）getBBox 失败或字体未就绪时拿到空盒，
+           若 box 一直为 null，GSAP 初始状态不会应用，文字停留在静态填充态。
+           用估算盒保证动画正常初始化，字体就绪后会再次精确测量纠正 */
+        const estW = characters.length * fontSize * 0.6 + Math.abs(Number(letterSpacing) || 0) * characters.length;
+        next = {
+          x: -pad,
+          y: -fontSize * 0.9 - pad,
+          width: estW + pad * 2,
+          height: fontSize * 1.2 + pad * 2
+        };
+      }
 
       setBox(prev =>
         prev &&
@@ -85,12 +98,17 @@ const StrokeText = ({
     };
 
     measure();
+    /* 字体交换可能导致首次测量偏差，延迟补测两次 */
+    const t1 = window.setTimeout(measure, 300);
+    const t2 = window.setTimeout(measure, 1200);
     if (typeof document !== 'undefined' && document.fonts?.ready) {
       document.fonts.ready.then(measure).catch(() => {});
     }
 
     return () => {
       cancelled = true;
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
     };
   }, [characters, fontSize, fontWeight, letterSpacing, strokeWidth]);
 
