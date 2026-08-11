@@ -115,17 +115,6 @@ function Slideshow({
       ref={fsRef}
       className={isFs ? 'relative h-full bg-black flex flex-col justify-center gap-3 p-4 md:p-8' : ''}
     >
-      {/* 全屏时的退出按钮 */}
-      {isFs && (
-        <button
-          aria-label="退出全屏"
-          onClick={toggleFs}
-          className="absolute top-4 right-4 z-10 rounded-full bg-white/15 backdrop-blur p-2.5 text-white/85 hover:text-white hover:bg-white/25 transition-colors"
-        >
-          <Minimize size={18} />
-        </button>
-      )}
-
       <div
         className={`relative overflow-hidden select-none ${
           isFs ? 'flex-1 min-h-0 flex items-center justify-center bg-black' : 'rounded-2xl glass-card bg-white'
@@ -164,12 +153,25 @@ function Slideshow({
           <ChevronRight size={20} />
         </button>
 
+        {/* 页码：左下角（视频播放器式布局） */}
         <span
-          className="absolute bottom-3 right-3 rounded-full text-white text-[11px] font-mono-en px-2.5 py-1"
+          className="absolute bottom-3 left-3 rounded-full text-white text-[11px] font-mono-en px-2.5 py-1"
           style={{ backgroundColor: accent }}
         >
           {cur + 1} / {total}
         </span>
+
+        {/* 全屏按钮：右下角，主题色（仅电脑端、试点项目） */}
+        {allowFullscreen && (
+          <button
+            aria-label={isFs ? '退出全屏' : '全屏播放'}
+            onClick={toggleFs}
+            style={{ backgroundColor: accent }}
+            className="absolute bottom-3 right-3 hidden md:flex items-center justify-center rounded-full p-2.5 text-white shadow-md hover:brightness-110 transition-all"
+          >
+            {isFs ? <Minimize size={16} /> : <Maximize size={16} />}
+          </button>
+        )}
       </div>
 
       {/* 播放控制 + 全屏 + 缩略图条 */}
@@ -188,20 +190,6 @@ function Slideshow({
           {playing ? <Pause size={13} /> : <Play size={13} />}
           {playing ? '暂停' : '播放'}
         </button>
-
-        {/* 全屏按钮：仅电脑端、试点项目显示 */}
-        {allowFullscreen && (
-          <button
-            onClick={toggleFs}
-            aria-label={isFs ? '退出全屏' : '全屏播放'}
-            className={`shrink-0 hidden md:inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-colors ${
-              isFs ? 'bg-white/15 text-white hover:bg-white/25' : 'glass-card text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {isFs ? <Minimize size={13} /> : <Maximize size={13} />}
-            {isFs ? '退出全屏' : '全屏'}
-          </button>
-        )}
 
         <div ref={stripRef} className="flex gap-2 overflow-x-auto py-1">
           {pages.map((p, i) => (
