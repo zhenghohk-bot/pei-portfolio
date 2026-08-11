@@ -336,7 +336,7 @@ export default function WorkPdf() {
               pages={pages}
               title={work.title}
               accent={work.accent ?? '#4A7468'}
-              allowFullscreen={work.id === 'yiqida'}
+              allowFullscreen
               onZoom={(i) => setLightbox(i)}
             />
           ) : (
