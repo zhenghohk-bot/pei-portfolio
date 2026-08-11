@@ -189,7 +189,6 @@ export const projectDetails: Record<string, ProjectDetail> = {
     ],
     links: [
       { label: 'Demo 视频', href: 'https://www.bilibili.com/video/BV1jfu26QE1K/', kind: 'video' },
-      { label: '汇报 PDF', href: asset('/works/idea-salon.pdf'), kind: 'pdf' },
     ],
   },
 
@@ -388,12 +387,16 @@ export type MoreWork = {
   ratio: 'landscape' | 'portrait' // portrait 用 object-cover 聚焦画面主体
   focus?: string // object-position，竖裁时对准主体
   linkLabel?: string
-  link?: string
+  pages?: string[] // 画廊页图（从原始 PDF 高清渲染）
   github?: string // 公开仓库地址
   video?: string // 演示视频，新标签页播放
   size?: 'lg' | 'md' | 'sm' // 自由排布时的相对尺寸
   rotate?: number // 轻微旋转角度
 }
+
+/* 画廊页图路径生成：/works/gallery/<id>-p01.webp … */
+const galleryPages = (id: string, n: number) =>
+  Array.from({ length: n }, (_, i) => asset(`/works/gallery/${id}-p${String(i + 1).padStart(2, '0')}.webp`))
 
 /* 按时间排序：2025 → 2026 */
 export const moreWorks: MoreWork[] = [
@@ -404,8 +407,8 @@ export const moreWorks: MoreWork[] = [
     period: '2025.09-11',
     cover: asset('/works/more-yiqida.webp'),
     ratio: 'landscape',
-    link: asset('/works/yiqida.pdf'),
-    linkLabel: '阅读完整 PDF',
+    pages: galleryPages('yiqida', 19),
+    linkLabel: '查看完整作品',
     video: asset('/works/yiqida.mp4'),
     size: 'lg',
     rotate: -1.4,
@@ -417,8 +420,8 @@ export const moreWorks: MoreWork[] = [
     period: '2025.11-2026.01',
     cover: asset('/works/more-studio1.webp'),
     ratio: 'landscape',
-    link: asset('/works/studio1-thyroid.pdf'),
-    linkLabel: '阅读完整 PDF',
+    pages: galleryPages('studio1', 36),
+    linkLabel: '查看完整作品',
     size: 'sm',
     rotate: 1.2,
   },
@@ -429,8 +432,8 @@ export const moreWorks: MoreWork[] = [
     period: '2025.12',
     cover: asset('/works/more-culture.webp'),
     ratio: 'landscape',
-    link: asset('/works/culture-game.pdf'),
-    linkLabel: '阅读完整 PDF',
+    pages: galleryPages('culture', 10),
+    linkLabel: '查看完整作品',
     size: 'sm',
     rotate: 1.6,
   },
@@ -441,8 +444,8 @@ export const moreWorks: MoreWork[] = [
     period: '2026.03-04',
     cover: asset('/works/more-blender.webp'),
     ratio: 'landscape',
-    link: asset('/works/blender-exoskeleton.pdf'),
-    linkLabel: '阅读完整 PDF',
+    pages: galleryPages('blender', 23),
+    linkLabel: '查看完整作品',
     github: 'https://github.com/zhenghohk-bot/Blender-Exoskeleton',
     video: asset('/works/blender-demo.mp4'),
     size: 'md',
@@ -455,8 +458,8 @@ export const moreWorks: MoreWork[] = [
     period: '2026.05-06',
     cover: asset('/works/more-muselens.webp'),
     ratio: 'landscape',
-    link: asset('/works/muselens.pdf'),
-    linkLabel: '阅读完整 PDF',
+    pages: galleryPages('muselens', 21),
+    linkLabel: '查看完整作品',
     size: 'lg',
     rotate: 1,
   },

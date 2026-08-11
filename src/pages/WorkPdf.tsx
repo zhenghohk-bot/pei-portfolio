@@ -1,28 +1,43 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router'
-import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ExternalLink, Github, LoaderCircle } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github } from 'lucide-react'
 import { moreWorks } from '../content'
 import Backdrop from '../components/Backdrop'
 
 /**
- * More Work 的站内 PDF 查看页：
- * 顶栏返回 + 项目名 + GitHub（如有）+ 视频（如有）+ 嵌入 PDF，底部可直达上一个 / 下一个作品
+ * More Work 的站内画廊页：
+ * 顶栏返回 + 项目名 + GitHub（如有）+ 视频（如有）+ 逐页高清画廊（点击放大，左右切换），
+ * 底部可直达上一个 / 下一个作品
  */
 export default function WorkPdf() {
   const { id } = useParams()
   const reduce = useReducedMotion()
-  /* PDF iframe 加载完成后才淡入，加载期间先显示封面占位 */
-  const [pdfReady, setPdfReady] = useState(false)
-
-  useEffect(() => {
-    window.scrollTo(0, 0)
-    setPdfReady(false)
-  }, [id])
+  const [lightbox, setLightbox] = useState<number | null>(null)
 
   const idx = moreWorks.findIndex((w) => w.id === id)
   const work = idx >= 0 ? moreWorks[idx] : undefined
-  if (!work || !work.link) return <Navigate to="/" replace />
+  const pages = work?.pages ?? []
+  const total = pages.length
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    setLightbox(null)
+  }, [id])
+
+  /* 灯箱键盘操作：Esc 关闭，左右方向键切换 */
+  useEffect(() => {
+    if (lightbox === null) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null)
+      if (e.key === 'ArrowLeft') setLightbox((v) => (v === null ? v : (v - 1 + total) % total))
+      if (e.key === 'ArrowRight') setLightbox((v) => (v === null ? v : (v + 1) % total))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [lightbox, total])
+
+  if (!work || total === 0) return <Navigate to="/" replace />
 
   const prev = moreWorks[(idx - 1 + moreWorks.length) % moreWorks.length]
   const next = moreWorks[(idx + 1) % moreWorks.length]
@@ -61,28 +76,17 @@ export default function WorkPdf() {
                 <span className="font-mono-en ml-3">{work.period}</span>
               </p>
             </div>
-            <div className="flex items-center gap-4 shrink-0">
-              {work.github && (
-                <a
-                  href={work.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Github size={13} />
-                  GitHub 仓库
-                </a>
-              )}
+            {work.github && (
               <a
-                href={work.link}
+                href={work.github}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-pine transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
               >
-                <ExternalLink size={13} />
-                在新标签页打开 PDF
+                <Github size={13} />
+                GitHub 仓库
               </a>
-            </div>
+            )}
           </div>
         </motion.div>
 
@@ -96,43 +100,42 @@ export default function WorkPdf() {
           >
             <h2 className="text-xl font-bold tracking-tight mb-4">演示视频</h2>
             <div className="rounded-3xl overflow-hidden glass-card bg-black">
-              <video src={work.video} controls preload="metadata" className="w-full h-auto" />
+              <video
+                src={work.video}
+                controls
+                controlsList="nodownload"
+                preload="metadata"
+                className="w-full h-auto"
+              />
             </div>
           </motion.section>
         )}
 
-        {/* 嵌入 PDF */}
+        {/* 完整画廊：逐页高清图，懒加载，点击放大 */}
         <motion.section
           initial={reduce ? false : { opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
           className="mt-10"
         >
-          <h2 className="text-xl font-bold tracking-tight mb-4">完整汇报 PDF</h2>
-          <div className="relative rounded-3xl overflow-hidden glass-card">
-            {/* 加载过渡：封面占位 + 提示，PDF 就绪后淡出（PDF 已做无损线性化，可边下边显示） */}
-            <div
-              aria-hidden={pdfReady}
-              className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-white transition-opacity duration-500 ${
-                pdfReady ? 'opacity-0 pointer-events-none' : 'opacity-100'
-              }`}
-            >
-              <img
-                src={work.cover}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-25 blur-sm"
-              />
-              <LoaderCircle size={26} className="relative animate-spin text-foreground/60" />
-              <p className="relative text-sm text-foreground/70">PDF 加载中，线性化后可边下边看…</p>
-            </div>
-            <iframe
-              src={work.link}
-              title={`${work.title} PDF`}
-              onLoad={() => setPdfReady(true)}
-              className={`w-full h-[78vh] border-0 bg-white transition-opacity duration-500 ${
-                pdfReady ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
+          <h2 className="text-xl font-bold tracking-tight mb-4">完整作品</h2>
+          <div className="flex flex-col gap-5">
+            {pages.map((src, i) => (
+              <div
+                key={src}
+                className="rounded-2xl overflow-hidden glass-card cursor-zoom-in"
+                onClick={() => setLightbox(i)}
+                role="button"
+                aria-label={`放大查看第 ${i + 1} 页`}
+              >
+                <img
+                  src={src}
+                  alt={`${work.title} 第 ${i + 1} 页`}
+                  loading="lazy"
+                  className="w-full h-auto"
+                />
+              </div>
+            ))}
           </div>
         </motion.section>
 
@@ -175,6 +178,68 @@ export default function WorkPdf() {
           </div>
         </motion.div>
       </main>
+
+      {/* 灯箱：放大查看，左右切换，Esc 关闭 */}
+      <AnimatePresence>
+        {lightbox !== null && pages[lightbox] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[80] flex items-center justify-center bg-black/78 backdrop-blur-sm p-6"
+            onClick={() => setLightbox(null)}
+          >
+            <button
+              aria-label="关闭"
+              className="absolute top-5 right-5 text-white/85 hover:text-white transition-colors p-2"
+              onClick={() => setLightbox(null)}
+            >
+              <X size={24} />
+            </button>
+            <button
+              aria-label="上一张"
+              className="absolute left-3 md:left-6 text-white/85 hover:text-white transition-colors p-2"
+              onClick={(e) => {
+                e.stopPropagation()
+                setLightbox((lightbox - 1 + total) % total)
+              }}
+            >
+              <ChevronLeft size={34} />
+            </button>
+            <motion.figure
+              key={lightbox}
+              initial={reduce ? false : { opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.25 }}
+              className="max-w-[88vw]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={pages[lightbox]}
+                alt={`${work.title} 第 ${lightbox + 1} 页`}
+                className="max-h-[86vh] max-w-[88vw] w-auto h-auto rounded-xl shadow-2xl bg-white"
+              />
+              <figcaption
+                className="mt-3 text-center text-sm font-mono-en"
+                style={{ color: '#3B5BDB' }}
+              >
+                {lightbox + 1} / {total}
+              </figcaption>
+            </motion.figure>
+            <button
+              aria-label="下一张"
+              className="absolute right-3 md:right-6 text-white/85 hover:text-white transition-colors p-2"
+              onClick={(e) => {
+                e.stopPropagation()
+                setLightbox((lightbox + 1) % total)
+              }}
+            >
+              <ChevronRight size={34} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -10,6 +10,13 @@ if (typeof window !== 'undefined') {
 
 const DEFAULT_TEXT = 'Draw Attention';
 
+/* iOS WebKit（含微信内置浏览器）对 SVG dasharray / clipPath 动画支持不稳定，
+   会导致文字直接停在最终填充态。iOS 上改用逐字 opacity 淡入，桌面端保持描边 + 擦除填充 */
+const isAppleWebKit =
+  typeof navigator !== 'undefined' &&
+  (/iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+
 const StrokeText = ({
   text = DEFAULT_TEXT,
   strokeColor = '#A78BFA',
@@ -129,6 +136,11 @@ const StrokeText = ({
 
     const setStart = () => {
       gsap.killTweensOf(targets);
+      if (isAppleWebKit) {
+        gsap.set(strokes, { opacity: 0 });
+        gsap.set(fills, { opacity: 0 });
+        return;
+      }
       gsap.set(strokes, { strokeDasharray: dash, strokeDashoffset: dash });
       gsap.set(fills, { opacity: useWipe ? 1 : 0 });
       if (wipe) gsap.set(wipe, { attr: { width: 0 } });
@@ -136,6 +148,11 @@ const StrokeText = ({
 
     const setEnd = () => {
       gsap.killTweensOf(targets);
+      if (isAppleWebKit) {
+        gsap.set(strokes, { opacity: 1 });
+        gsap.set(fills, { opacity: fillEnabled ? 1 : 0 });
+        return;
+      }
       gsap.set(strokes, { strokeDasharray: dash, strokeDashoffset: 0 });
       gsap.set(fills, { opacity: fillEnabled ? 1 : 0 });
       if (wipe) gsap.set(wipe, { attr: { width: fillEnabled ? box.width : 0 } });
@@ -155,6 +172,19 @@ const StrokeText = ({
         repeatDelay: trigger === 'loop' ? 0.9 : 0,
         defaults: { overwrite: 'auto' }
       });
+
+      if (isAppleWebKit) {
+        /* iOS：描边层与填充层都逐字淡入，填充稍后跟入 */
+        tl.to(strokes, { opacity: 1, duration: drawDuration * 0.6, ease, stagger: staggerConfig }, 0);
+        if (fillEnabled) {
+          tl.to(
+            fills,
+            { opacity: 1, duration: fillDuration, ease: 'power2.out', stagger: staggerConfig },
+            drawDuration * 0.6 + fillDelay
+          );
+        }
+        return tl;
+      }
 
       tl.to(strokes, { strokeDashoffset: 0, duration: drawDuration, ease, stagger: staggerConfig }, 0);
 
@@ -238,7 +268,7 @@ const StrokeText = ({
       aria-label={String(text ?? '')}
     >
       <svg className="stroke-text__svg" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-        {fillMode === 'wipe' && box && (
+        {fillMode === 'wipe' && box && !isAppleWebKit && (
           <defs>
             <clipPath id={wipeId} clipPathUnits="userSpaceOnUse">
               <rect ref={wipeRectRef} x={box.x} y={box.y} width="0" height={box.height} />
@@ -272,7 +302,7 @@ const StrokeText = ({
           fill={fillColor}
           stroke="none"
           style={fontStyle}
-          clipPath={fillMode === 'wipe' && box ? `url(#${wipeId})` : undefined}
+          clipPath={fillMode === 'wipe' && box && !isAppleWebKit ? `url(#${wipeId})` : undefined}
         >
           {characters.map((char, index) => (
             <tspan data-fill-char key={`f-${index}`}>

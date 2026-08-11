@@ -9,12 +9,16 @@ const sizeCls: Record<NonNullable<MoreWork['size']>, string> = {
   sm: 'md:w-[76%]',
 }
 
-/* 悬停/触摸卡片时低优先级后台预取 PDF（浏览器会缓存），点开查看页近似秒开 */
+/* 悬停/触摸卡片时预取画廊前 3 页，点开查看页近似秒开 */
 const prefetched = new Set<string>()
-function prefetchPdf(href?: string) {
-  if (!href || prefetched.has(href)) return
-  prefetched.add(href)
-  fetch(href, { priority: 'low' } as RequestInit).catch(() => {})
+function prefetchGallery(pages?: string[]) {
+  if (!pages) return
+  pages.slice(0, 3).forEach((src) => {
+    if (prefetched.has(src)) return
+    prefetched.add(src)
+    const img = new Image()
+    img.src = src
+  })
 }
 
 function WorkItem({
@@ -43,9 +47,9 @@ function WorkItem({
       <Link
         to={`/work/${work.id}`}
         className="group block"
-        title={`${work.title} · 查看完整 PDF`}
-        onMouseEnter={() => prefetchPdf(work.link)}
-        onTouchStart={() => prefetchPdf(work.link)}
+        title={`${work.title} · 查看完整作品`}
+        onMouseEnter={() => prefetchGallery(work.pages)}
+        onTouchStart={() => prefetchGallery(work.pages)}
       >
         <div
           className={`rounded-3xl overflow-hidden glass-card ${
@@ -82,7 +86,7 @@ function WorkItem({
 
 /**
  * More Work：两列自由错落排布，按时间 2025 → 2026 排序，
- * 卡片有大有小并带轻微旋转，点击直接打开对应 PDF
+ * 卡片有大有小并带轻微旋转，点击进入站内画廊查看完整作品
  */
 export default function MoreWorkSection() {
   const reduce = useReducedMotion()
@@ -114,7 +118,7 @@ export default function MoreWorkSection() {
           </p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight">更多实践</h2>
           <p className="mt-3 text-muted-foreground max-w-md leading-relaxed">
-            课程作业与其他探索，2025-2026。点击卡片查看完整 PDF。
+            课程作业与其他探索，2025-2026。点击卡片查看完整作品。
           </p>
         </motion.div>
 
