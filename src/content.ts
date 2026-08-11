@@ -388,6 +388,7 @@ export type MoreWork = {
   focus?: string // object-position，竖裁时对准主体
   linkLabel?: string
   pages?: string[] // 画廊页图（从原始 PDF 高清渲染）
+  accent?: string // 项目主题色（从首页吸取），用于放映模式强调元素
   github?: string // 公开仓库地址
   video?: string // 演示视频，新标签页播放
   size?: 'lg' | 'md' | 'sm' // 自由排布时的相对尺寸
@@ -409,6 +410,7 @@ export const moreWorks: MoreWork[] = [
     ratio: 'landscape',
     pages: galleryPages('yiqida', 19),
     linkLabel: '查看完整作品',
+    accent: '#904890',
     video: asset('/works/yiqida.mp4'),
     size: 'lg',
     rotate: -1.4,
@@ -422,6 +424,7 @@ export const moreWorks: MoreWork[] = [
     ratio: 'landscape',
     pages: galleryPages('studio1', 36),
     linkLabel: '查看完整作品',
+    accent: '#5E9FC4',
     size: 'sm',
     rotate: 1.2,
   },
@@ -434,6 +437,7 @@ export const moreWorks: MoreWork[] = [
     ratio: 'landscape',
     pages: galleryPages('culture', 10),
     linkLabel: '查看完整作品',
+    accent: '#E07B5F',
     size: 'sm',
     rotate: 1.6,
   },
@@ -446,6 +450,7 @@ export const moreWorks: MoreWork[] = [
     ratio: 'landscape',
     pages: galleryPages('blender', 23),
     linkLabel: '查看完整作品',
+    accent: '#307848',
     github: 'https://github.com/zhenghohk-bot/Blender-Exoskeleton',
     video: asset('/works/blender-demo.mp4'),
     size: 'md',
@@ -460,6 +465,7 @@ export const moreWorks: MoreWork[] = [
     ratio: 'landscape',
     pages: galleryPages('muselens', 21),
     linkLabel: '查看完整作品',
+    accent: '#819BF3', // VIBE 蓝紫色
     size: 'lg',
     rotate: 1,
   },

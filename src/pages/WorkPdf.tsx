@@ -8,20 +8,23 @@ import Backdrop from '../components/Backdrop'
 /* 放映模式试点项目，验收通过后再同步到其余更多实践项目 */
 const SLIDESHOW_DEMO_IDS = ['yiqida']
 
-/* 浏览模式切换：放映 / 滚动 */
+/* 浏览模式切换：放映 / 滚动，选中态用项目主题色 */
 function ModeToggle({
   mode,
   onChange,
+  accent,
 }: {
   mode: 'slide' | 'scroll'
   onChange: (m: 'slide' | 'scroll') => void
+  accent: string
 }) {
   const btn = (m: 'slide' | 'scroll', label: string) => (
     <button
       key={m}
       onClick={() => onChange(m)}
+      style={mode === m ? { backgroundColor: accent, color: '#FFF9F2' } : undefined}
       className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
-        mode === m ? 'bg-pine text-cream shadow-sm' : 'text-muted-foreground hover:text-foreground'
+        mode === m ? 'shadow-sm' : 'text-muted-foreground hover:text-foreground'
       }`}
     >
       {label}
@@ -39,10 +42,12 @@ function ModeToggle({
 function Slideshow({
   pages,
   title,
+  accent,
   onZoom,
 }: {
   pages: string[]
   title: string
+  accent: string
   onZoom: (i: number) => void
 }) {
   const total = pages.length
@@ -106,7 +111,10 @@ function Slideshow({
           <ChevronRight size={20} />
         </button>
 
-        <span className="absolute bottom-3 right-3 rounded-full bg-black/45 text-white text-[11px] font-mono-en px-2.5 py-1">
+        <span
+          className="absolute bottom-3 right-3 rounded-full text-white text-[11px] font-mono-en px-2.5 py-1"
+          style={{ backgroundColor: accent }}
+        >
           {cur + 1} / {total}
         </span>
       </div>
@@ -119,7 +127,8 @@ function Slideshow({
             if (!playing && cur >= total - 1) setCur(0)
             setPlaying((p) => !p)
           }}
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-full glass-card px-3.5 py-2 text-xs font-medium text-foreground/75 hover:text-foreground transition-colors"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-full glass-card px-3.5 py-2 text-xs font-medium transition-colors"
+          style={{ color: accent }}
         >
           {playing ? <Pause size={13} /> : <Play size={13} />}
           {playing ? '暂停' : '播放'}
@@ -130,8 +139,9 @@ function Slideshow({
               key={p}
               onClick={() => manual(() => i)}
               aria-label={`跳转到第 ${i + 1} 页`}
+              style={i === cur ? { borderColor: accent } : undefined}
               className={`shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
-                i === cur ? 'border-pine shadow-md' : 'border-transparent opacity-55 hover:opacity-90'
+                i === cur ? 'shadow-md' : 'border-transparent opacity-55 hover:opacity-90'
               }`}
             >
               <img src={p} alt="" loading="lazy" className="w-20 md:w-24 h-auto block" />
@@ -261,10 +271,15 @@ export default function WorkPdf() {
         >
           <div className="flex items-center justify-between gap-4 mb-4">
             <h2 className="text-xl font-bold tracking-tight">完整作品</h2>
-            {isDemo && <ModeToggle mode={mode} onChange={setMode} />}
+            {isDemo && <ModeToggle mode={mode} onChange={setMode} accent={work.accent ?? '#4A7468'} />}
           </div>
           {isDemo && mode === 'slide' ? (
-            <Slideshow pages={pages} title={work.title} onZoom={(i) => setLightbox(i)} />
+            <Slideshow
+              pages={pages}
+              title={work.title}
+              accent={work.accent ?? '#4A7468'}
+              onZoom={(i) => setLightbox(i)}
+            />
           ) : (
             <div className="flex flex-col gap-5">
               {pages.map((src, i) => (
