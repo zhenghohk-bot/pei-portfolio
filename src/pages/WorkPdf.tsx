@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, Play, Pause } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, Play, Pause, Maximize, Minimize } from 'lucide-react'
 import { moreWorks } from '../content'
 import Backdrop from '../components/Backdrop'
 
@@ -43,11 +43,14 @@ function Slideshow({
   pages,
   title,
   accent,
+  accent,
+  allowFullscreen = false,
   onZoom,
 }: {
   pages: string[]
   title: string
   accent: string
+  allowFullscreen?: boolean
   onZoom: (i: number) => void
 }) {
   const total = pages.length
@@ -55,6 +58,23 @@ function Slideshow({
   const [cur, setCur] = useState(0)
   const [playing, setPlaying] = useState(true)
   const stripRef = useRef<HTMLDivElement>(null)
+  const fsRef = useRef<HTMLDivElement>(null)
+  const [isFs, setIsFs] = useState(false)
+
+  /* 原生全屏状态同步（电脑端） */
+  useEffect(() => {
+    const onChange = () => setIsFs(Boolean(document.fullscreenElement))
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
+  const toggleFs = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {})
+    } else {
+      fsRef.current?.requestFullscreen?.().catch(() => {})
+    }
+  }
 
   /* 自动播放：3.5s 翻一页，播到最后一页自动停止 */
   useEffect(() => {
@@ -79,9 +99,39 @@ function Slideshow({
     el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
   }, [cur])
 
+  /* 全屏状态下支持键盘方向键翻页 */
+  useEffect(() => {
+    if (!isFs) return undefined
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') manual((c) => (c - 1 + total) % total)
+      if (e.key === 'ArrowRight') manual((c) => (c + 1) % total)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFs, total])
+
   return (
-    <div>
-      <div className="relative rounded-2xl overflow-hidden glass-card bg-white select-none">
+    <div
+      ref={fsRef}
+      className={isFs ? 'relative h-full bg-black flex flex-col justify-center gap-3 p-4 md:p-8' : ''}
+    >
+      {/* 全屏时的退出按钮 */}
+      {isFs && (
+        <button
+          aria-label="退出全屏"
+          onClick={toggleFs}
+          className="absolute top-4 right-4 z-10 rounded-full bg-white/15 backdrop-blur p-2.5 text-white/85 hover:text-white hover:bg-white/25 transition-colors"
+        >
+          <Minimize size={18} />
+        </button>
+      )}
+
+      <div
+        className={`relative overflow-hidden select-none ${
+          isFs ? 'flex-1 min-h-0 flex items-center justify-center bg-black' : 'rounded-2xl glass-card bg-white'
+        }`}
+      >
         <AnimatePresence mode="wait" initial={false}>
           <motion.img
             key={cur}
@@ -91,8 +141,12 @@ function Slideshow({
             animate={{ opacity: 1, x: 0 }}
             exit={reduce ? undefined : { opacity: 0, x: -28 }}
             transition={{ duration: 0.32, ease: 'easeOut' }}
-            className="w-full h-auto cursor-zoom-in"
-            onClick={() => onZoom(cur)}
+            className={
+              isFs
+                ? 'max-h-full max-w-full w-auto h-auto rounded-lg'
+                : 'w-full h-auto cursor-zoom-in'
+            }
+            onClick={isFs ? undefined : () => onZoom(cur)}
           />
         </AnimatePresence>
 
@@ -119,20 +173,37 @@ function Slideshow({
         </span>
       </div>
 
-      {/* 播放控制 + 缩略图条 */}
-      <div className="mt-3 flex items-center gap-3">
+      {/* 播放控制 + 全屏 + 缩略图条 */}
+      <div className={`flex items-center gap-3 ${isFs ? '' : 'mt-3'}`}>
         <button
           onClick={() => {
             /* 播完后重新播放则从头开始 */
             if (!playing && cur >= total - 1) setCur(0)
             setPlaying((p) => !p)
           }}
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-full glass-card px-3.5 py-2 text-xs font-medium transition-colors"
-          style={{ color: accent }}
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-colors ${
+            isFs ? 'bg-white/15 hover:bg-white/25' : 'glass-card'
+          }`}
+          style={{ color: isFs ? '#FFFFFF' : accent }}
         >
           {playing ? <Pause size={13} /> : <Play size={13} />}
           {playing ? '暂停' : '播放'}
         </button>
+
+        {/* 全屏按钮：仅电脑端、试点项目显示 */}
+        {allowFullscreen && (
+          <button
+            onClick={toggleFs}
+            aria-label={isFs ? '退出全屏' : '全屏播放'}
+            className={`shrink-0 hidden md:inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-colors ${
+              isFs ? 'bg-white/15 text-white hover:bg-white/25' : 'glass-card text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {isFs ? <Minimize size={13} /> : <Maximize size={13} />}
+            {isFs ? '退出全屏' : '全屏'}
+          </button>
+        )}
+
         <div ref={stripRef} className="flex gap-2 overflow-x-auto py-1">
           {pages.map((p, i) => (
             <button
@@ -278,6 +349,7 @@ export default function WorkPdf() {
               pages={pages}
               title={work.title}
               accent={work.accent ?? '#4A7468'}
+              allowFullscreen={work.id === 'yiqida'}
               onZoom={(i) => setLightbox(i)}
             />
           ) : (
