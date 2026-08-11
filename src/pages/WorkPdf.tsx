@@ -1,28 +1,169 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, Play, Pause } from 'lucide-react'
 import { moreWorks } from '../content'
 import Backdrop from '../components/Backdrop'
+
+/* 放映模式试点项目，验收通过后再同步到其余更多实践项目 */
+const SLIDESHOW_DEMO_IDS = ['yiqida']
+
+/* 浏览模式切换：放映 / 滚动 */
+function ModeToggle({
+  mode,
+  onChange,
+}: {
+  mode: 'slide' | 'scroll'
+  onChange: (m: 'slide' | 'scroll') => void
+}) {
+  const btn = (m: 'slide' | 'scroll', label: string) => (
+    <button
+      key={m}
+      onClick={() => onChange(m)}
+      className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
+        mode === m ? 'bg-pine text-cream shadow-sm' : 'text-muted-foreground hover:text-foreground'
+      }`}
+    >
+      {label}
+    </button>
+  )
+  return (
+    <div className="inline-flex items-center gap-1 rounded-full glass-card p-1">
+      {btn('slide', '放映模式')}
+      {btn('scroll', '滚动浏览')}
+    </div>
+  )
+}
+
+/* 放映模式：自动播放聚焦单页 + 可滑动缩略图条 + 左右箭头 */
+function Slideshow({
+  pages,
+  title,
+  onZoom,
+}: {
+  pages: string[]
+  title: string
+  onZoom: (i: number) => void
+}) {
+  const total = pages.length
+  const reduce = useReducedMotion()
+  const [cur, setCur] = useState(0)
+  const [playing, setPlaying] = useState(true)
+  const stripRef = useRef<HTMLDivElement>(null)
+
+  /* 自动播放：3.5s 翻一页，播到最后一页自动停止 */
+  useEffect(() => {
+    if (!playing || reduce) return undefined
+    if (cur >= total - 1) {
+      setPlaying(false)
+      return undefined
+    }
+    const t = window.setTimeout(() => setCur((c) => Math.min(c + 1, total - 1)), 3500)
+    return () => window.clearTimeout(t)
+  }, [playing, cur, total, reduce])
+
+  /* 手动点缩略图或箭头即暂停自动播放 */
+  const manual = (fn: (c: number) => number) => {
+    setPlaying(false)
+    setCur(fn)
+  }
+
+  /* 当前缩略图自动滚动到可视区中间 */
+  useEffect(() => {
+    const el = stripRef.current?.children[cur] as HTMLElement | undefined
+    el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }, [cur])
+
+  return (
+    <div>
+      <div className="relative rounded-2xl overflow-hidden glass-card bg-white select-none">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.img
+            key={cur}
+            src={pages[cur]}
+            alt={`${title} 第 ${cur + 1} 页`}
+            initial={reduce ? false : { opacity: 0, x: 28 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={reduce ? undefined : { opacity: 0, x: -28 }}
+            transition={{ duration: 0.32, ease: 'easeOut' }}
+            className="w-full h-auto cursor-zoom-in"
+            onClick={() => onZoom(cur)}
+          />
+        </AnimatePresence>
+
+        <button
+          aria-label="上一张"
+          onClick={() => manual((c) => (c - 1 + total) % total)}
+          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 backdrop-blur p-2 shadow-md text-foreground/70 hover:text-foreground hover:bg-white transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <button
+          aria-label="下一张"
+          onClick={() => manual((c) => (c + 1) % total)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/85 backdrop-blur p-2 shadow-md text-foreground/70 hover:text-foreground hover:bg-white transition-colors"
+        >
+          <ChevronRight size={20} />
+        </button>
+
+        <span className="absolute bottom-3 right-3 rounded-full bg-black/45 text-white text-[11px] font-mono-en px-2.5 py-1">
+          {cur + 1} / {total}
+        </span>
+      </div>
+
+      {/* 播放控制 + 缩略图条 */}
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          onClick={() => {
+            /* 播完后重新播放则从头开始 */
+            if (!playing && cur >= total - 1) setCur(0)
+            setPlaying((p) => !p)
+          }}
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-full glass-card px-3.5 py-2 text-xs font-medium text-foreground/75 hover:text-foreground transition-colors"
+        >
+          {playing ? <Pause size={13} /> : <Play size={13} />}
+          {playing ? '暂停' : '播放'}
+        </button>
+        <div ref={stripRef} className="flex gap-2 overflow-x-auto py-1">
+          {pages.map((p, i) => (
+            <button
+              key={p}
+              onClick={() => manual(() => i)}
+              aria-label={`跳转到第 ${i + 1} 页`}
+              className={`shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+                i === cur ? 'border-pine shadow-md' : 'border-transparent opacity-55 hover:opacity-90'
+              }`}
+            >
+              <img src={p} alt="" loading="lazy" className="w-20 md:w-24 h-auto block" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 /**
  * More Work 的站内画廊页：
  * 顶栏返回 + 项目名 + GitHub（如有）+ 视频（如有）+ 逐页高清画廊（点击放大，左右切换），
- * 底部可直达上一个 / 下一个作品
+ * 底部可直达上一个 / 下一个作品；试点项目支持放映 / 滚动两种浏览模式
  */
 export default function WorkPdf() {
   const { id } = useParams()
   const reduce = useReducedMotion()
   const [lightbox, setLightbox] = useState<number | null>(null)
+  const [mode, setMode] = useState<'slide' | 'scroll'>('slide')
 
   const idx = moreWorks.findIndex((w) => w.id === id)
   const work = idx >= 0 ? moreWorks[idx] : undefined
   const pages = work?.pages ?? []
   const total = pages.length
+  const isDemo = work ? SLIDESHOW_DEMO_IDS.includes(work.id) : false
 
   useEffect(() => {
     window.scrollTo(0, 0)
     setLightbox(null)
+    setMode('slide')
   }, [id])
 
   /* 灯箱键盘操作：Esc 关闭，左右方向键切换 */
@@ -111,32 +252,39 @@ export default function WorkPdf() {
           </motion.section>
         )}
 
-        {/* 完整画廊：逐页高清图，懒加载，点击放大 */}
+        {/* 完整画廊：试点项目支持放映 / 滚动两种模式，其余项目滚动模式 */}
         <motion.section
           initial={reduce ? false : { opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
           className="mt-10"
         >
-          <h2 className="text-xl font-bold tracking-tight mb-4">完整作品</h2>
-          <div className="flex flex-col gap-5">
-            {pages.map((src, i) => (
-              <div
-                key={src}
-                className="rounded-2xl overflow-hidden glass-card cursor-zoom-in"
-                onClick={() => setLightbox(i)}
-                role="button"
-                aria-label={`放大查看第 ${i + 1} 页`}
-              >
-                <img
-                  src={src}
-                  alt={`${work.title} 第 ${i + 1} 页`}
-                  loading="lazy"
-                  className="w-full h-auto"
-                />
-              </div>
-            ))}
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <h2 className="text-xl font-bold tracking-tight">完整作品</h2>
+            {isDemo && <ModeToggle mode={mode} onChange={setMode} />}
           </div>
+          {isDemo && mode === 'slide' ? (
+            <Slideshow pages={pages} title={work.title} onZoom={(i) => setLightbox(i)} />
+          ) : (
+            <div className="flex flex-col gap-5">
+              {pages.map((src, i) => (
+                <div
+                  key={src}
+                  className="rounded-2xl overflow-hidden glass-card cursor-zoom-in"
+                  onClick={() => setLightbox(i)}
+                  role="button"
+                  aria-label={`放大查看第 ${i + 1} 页`}
+                >
+                  <img
+                    src={src}
+                    alt={`${work.title} 第 ${i + 1} 页`}
+                    loading="lazy"
+                    className="w-full h-auto"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </motion.section>
 
         {/* 底部导航：上一个 / 返回首页 / 下一个 */}
