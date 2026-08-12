@@ -6,6 +6,7 @@ import {
   useReducedMotion,
 } from 'framer-motion'
 import { asset } from '../lib/asset'
+import SmartImg from './SmartImg'
 
 /**
  * 全站统一背景层：生成底图 + 噪点质感 + 漂移光斑
@@ -35,9 +36,10 @@ export default function Backdrop() {
   return (
     <div aria-hidden className="fixed inset-0 -z-10 overflow-hidden">
       {/* 生成底图，全站统一 */}
-      <img
+      <SmartImg
         src={asset('/hero-bg.jpg')}
         alt=""
+        eager
         className="absolute inset-0 w-full h-full object-cover"
       />
 

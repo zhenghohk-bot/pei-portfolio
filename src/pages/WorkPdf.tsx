@@ -4,63 +4,10 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, Play, Pause, Maximize, Minimize, LoaderCircle } from 'lucide-react'
 import { moreWorks } from '../content'
 import Backdrop from '../components/Backdrop'
+import SmartImg, { toMirror } from '../components/SmartImg'
 
 /* 放映模式已验收，全部更多实践项目启用 */
 const SLIDESHOW_DEMO_IDS = ['yiqida', 'thyroid-service', 'culture-game', 'blender-exoskeleton', 'muselens']
-
-/* 加载失败自动切换到 jsDelivr 镜像（GitHub Pages 在部分国内网络下图片会卡死，镜像更稳） */
-const toMirror = (src: string) => {
-  const m = src.match(/\/works\/gallery\/.*$/)
-  return m ? `https://cdn.jsdelivr.net/gh/zhenghohk-bot/pei-portfolio@gh-pages${m[0]}` : src
-}
-
-/* 带镜像兜底的图片组件：原地址加载失败或 6 秒未加载完成（连接挂起）都自动换镜像，只换一次 */
-function SmartImg({
-  src,
-  alt,
-  className,
-  eager = false,
-  onLoad,
-  onClick,
-}: {
-  src: string
-  alt: string
-  className?: string
-  eager?: boolean
-  onLoad?: () => void
-  onClick?: () => void
-}) {
-  const [s, setS] = useState(src)
-  const loadedRef = useRef(false)
-
-  useEffect(() => {
-    setS(src)
-    loadedRef.current = false
-    const t = window.setTimeout(() => {
-      if (!loadedRef.current) setS(toMirror(src))
-    }, 6000)
-    return () => window.clearTimeout(t)
-  }, [src])
-
-  return (
-    <img
-      src={s}
-      alt={alt}
-      className={className}
-      loading={eager ? 'eager' : 'lazy'}
-      decoding="async"
-      onLoad={() => {
-        loadedRef.current = true
-        onLoad?.()
-      }}
-      onClick={onClick}
-      onError={() => {
-        const mirror = toMirror(src)
-        if (s !== mirror) setS(mirror)
-      }}
-    />
-  )
-}
 
 /* 浏览模式切换：放映 / 滚动，选中态用项目主题色 */
 function ModeToggle({
@@ -293,6 +240,7 @@ export default function WorkPdf() {
   const reduce = useReducedMotion()
   const [lightbox, setLightbox] = useState<number | null>(null)
   const [mode, setMode] = useState<'slide' | 'scroll'>('slide')
+  const [videoSrc, setVideoSrc] = useState<string | undefined>(undefined)
 
   const idx = moreWorks.findIndex((w) => w.id === id)
   const work = idx >= 0 ? moreWorks[idx] : undefined
@@ -304,6 +252,8 @@ export default function WorkPdf() {
     window.scrollTo(0, 0)
     setLightbox(null)
     setMode('slide')
+    setVideoSrc(work?.video)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   /* 灯箱键盘操作：Esc 关闭，左右方向键切换 */
@@ -382,11 +332,16 @@ export default function WorkPdf() {
             <h2 className="text-xl font-bold tracking-tight mb-4">演示视频</h2>
             <div className="rounded-3xl overflow-hidden glass-card bg-black">
               <video
-                src={work.video}
+                src={videoSrc}
                 controls
                 controlsList="nodownload"
                 preload="metadata"
                 className="w-full h-auto"
+                onError={() => {
+                  /* 视频同样走镜像兜底 */
+                  const mirror = toMirror(work.video ?? '')
+                  if (videoSrc !== mirror) setVideoSrc(mirror)
+                }}
               />
             </div>
           </motion.section>

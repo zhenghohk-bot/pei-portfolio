@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowUpRight } from 'lucide-react'
 import { moreWorks, type MoreWork } from '../content'
+import SmartImg from '../components/SmartImg'
 
 const sizeCls: Record<NonNullable<MoreWork['size']>, string> = {
   lg: 'md:w-full',
@@ -56,10 +57,9 @@ function WorkItem({
             portrait ? 'aspect-[4/5]' : 'aspect-[16/9]'
           }`}
         >
-          <img
+          <SmartImg
             src={work.cover}
             alt={work.title}
-            loading="lazy"
             style={work.focus ? { objectPosition: work.focus } : undefined}
             className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
           />

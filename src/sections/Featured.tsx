@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { Github } from 'lucide-react'
 import CardSwap, { Card } from '../components/CardSwap'
 import StrokeText from '../components/StrokeText'
+import SmartImg from '../components/SmartImg'
 import { featured, vibeCodeShip, type FeaturedProject } from '../content'
 
 /* 指定配色：蓝紫展示字 / 深蓝紫说明 / 近黑卡片文字 */
@@ -44,17 +45,15 @@ function CardContent({ project, fixedHeight }: { project: FeaturedProject; fixed
       </div>
       {/* 截图：区域固定 16:9，PPT 刚好铺满；4:3 图用模糊同图补齐两侧 */}
       <div className="relative overflow-hidden aspect-video">
-        <img
+        <SmartImg
           aria-hidden
           src={project.cover}
-          loading="lazy"
           draggable={false}
           className="absolute inset-0 w-full h-full object-cover blur-lg scale-110"
         />
-        <img
+        <SmartImg
           src={project.cover}
           alt={project.title}
-          loading="lazy"
           draggable={false}
           className="relative w-full h-full object-contain"
         />

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { asset } from '../lib/asset'
+import { useMirrorSrc } from './SmartImg'
 
 /* 橘猫全形态（用户手工裁切贴纸图），顺序 = 总览图从左到右 */
 const cats = [
@@ -19,6 +20,7 @@ const cats = [
 export default function CatSwitcher({ className = '' }: { className?: string }) {
   const reduce = useReducedMotion()
   const [index, setIndex] = useState(0)
+  const mirror = useMirrorSrc(cats[index].src)
 
   return (
     <div
@@ -31,7 +33,9 @@ export default function CatSwitcher({ className = '' }: { className?: string }) 
       <AnimatePresence mode="wait" initial={false}>
         <motion.img
           key={cats[index].src}
-          src={cats[index].src}
+          src={mirror.src}
+          onLoad={mirror.onLoad}
+          onError={mirror.onError}
           alt={cats[index].alt}
           draggable={false}
           initial={reduce ? false : { opacity: 0, scale: 0.85, y: 8 }}

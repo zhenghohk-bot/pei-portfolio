@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { asset } from '../lib/asset'
+import SmartImg from './SmartImg'
 
 /**
  * 双面头像：默认卡通版，点击 3D 翻面切换真人照
@@ -23,26 +24,29 @@ export default function AvatarFlip({ className = '' }: { className?: string }) {
         title={flipped ? '切换回卡通头像' : '查看真人照片'}
       >
         {/* 正面：卡通头像 */}
-        <img
+        <SmartImg
           src={asset('/avatar-cartoon.webp')}
           alt="卡通头像"
+          eager
           draggable={false}
           className="w-full h-auto drop-shadow-[0_18px_36px_hsl(178_40%_40%/0.28)]"
           style={{ backfaceVisibility: 'hidden' }}
         />
         {/* 背面：真人照片 */}
-        <img
+        <SmartImg
           src={asset('/avatar-real.webp')}
           alt="真人照片"
+          eager
           draggable={false}
           className="absolute inset-0 w-full h-auto drop-shadow-[0_18px_36px_hsl(178_40%_40%/0.28)]"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         />
         {/* 减弱动效时直接淡入淡出 */}
         {reduce && flipped && (
-          <img
+          <SmartImg
             src={asset('/avatar-real.webp')}
             alt="真人照片"
+            eager
             draggable={false}
             className="absolute inset-0 w-full h-auto"
           />

@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, X, Github, FileText, Play, Rocket, Award } from 'lucide-react'
 import { featured, projectDetails, type ProjectLink as Link_ } from '../content'
 import Backdrop from '../components/Backdrop'
+import SmartImg from '../components/SmartImg'
 
 const COLOR_NAME = '#454F9E'
 
@@ -17,7 +18,7 @@ function GalleryFigure({ g, onOpen }: { g: { src: string; caption: string; cls?:
         role="button"
         aria-label={`放大查看：${g.caption}`}
       >
-        <img src={g.src} alt={g.caption} loading="lazy" className="w-full h-auto" />
+        <SmartImg src={g.src} alt={g.caption} className="w-full h-auto" />
       </div>
       {g.caption && (
         <figcaption className="mt-2.5 px-1 text-xs text-muted-foreground">{g.caption}</figcaption>
@@ -371,9 +372,10 @@ export default function ProjectDetail() {
               className="max-w-[88vw]"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <SmartImg
                 src={project.gallery[lightbox].src}
                 alt={project.gallery[lightbox].caption}
+                eager
                 className="max-h-[82vh] max-w-[88vw] w-auto h-auto rounded-xl shadow-2xl bg-white"
               />
               <figcaption className="mt-3 text-center text-sm" style={{ color: '#3B5BDB' }}>
