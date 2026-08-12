@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="何佩珍 Peizhen He - 同济大学交互设计硕士，AI 产品经理。作品集与个人介绍。" />
+    <title>Pei's Portfolio · 何佩珍</title>
+    <!-- GitHub Pages SPA 回跳：把 404.html 带来的 ?/path 还原成正常路由 -->
+    <script>
+      ;(function () {
+        var l = window.location
+        if (l.search[1] === '/') {
+          var decoded = l.search
+            .slice(1)
+            .split('&')
+            .map(function (s) {
+              return s.replace(/~and~/g, '&')
+            })
+            .join('?')
+          window.history.replaceState(null, '', l.pathname.slice(0, -1) + decoded + l.hash)
+        }
+      })()
+    </script>
+    <script type="module" crossorigin src="/pei-portfolio/assets/index-B1_EG2Ns.js"></script>
+    <link rel="stylesheet" crossorigin href="/pei-portfolio/assets/index-D6SlrYLl.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
