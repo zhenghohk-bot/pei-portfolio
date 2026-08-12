@@ -1,12 +1,53 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, Navigate } from 'react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, Play, Pause, Maximize, Minimize } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X, Github, Play, Pause, Maximize, Minimize, LoaderCircle } from 'lucide-react'
 import { moreWorks } from '../content'
 import Backdrop from '../components/Backdrop'
 
 /* 放映模式已验收，全部更多实践项目启用 */
 const SLIDESHOW_DEMO_IDS = ['yiqida', 'thyroid-service', 'culture-game', 'blender-exoskeleton', 'muselens']
+
+/* 加载失败自动切换到 jsDelivr 镜像（GitHub Pages 在部分国内网络下图片会卡死，镜像更稳） */
+const toMirror = (src: string) => {
+  const m = src.match(/\/works\/gallery\/.*$/)
+  return m ? `https://cdn.jsdelivr.net/gh/zhenghohk-bot/pei-portfolio@gh-pages${m[0]}` : src
+}
+
+/* 带镜像兜底的图片组件：原地址 onError 后自动换镜像，只换一次 */
+function SmartImg({
+  src,
+  alt,
+  className,
+  eager = false,
+  onLoad,
+  onClick,
+}: {
+  src: string
+  alt: string
+  className?: string
+  eager?: boolean
+  onLoad?: () => void
+  onClick?: () => void
+}) {
+  const [s, setS] = useState(src)
+  useEffect(() => setS(src), [src])
+  return (
+    <img
+      src={s}
+      alt={alt}
+      className={className}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+      onLoad={onLoad}
+      onClick={onClick}
+      onError={() => {
+        const mirror = toMirror(src)
+        if (s !== mirror) setS(mirror)
+      }}
+    />
+  )
+}
 
 /* 浏览模式切换：放映 / 滚动，选中态用项目主题色 */
 function ModeToggle({
@@ -59,6 +100,10 @@ function Slideshow({
   const stripRef = useRef<HTMLDivElement>(null)
   const fsRef = useRef<HTMLDivElement>(null)
   const [isFs, setIsFs] = useState(false)
+  const [imgReady, setImgReady] = useState(false)
+
+  /* 翻页后重置加载态，显示加载转圈直到新图就绪 */
+  useEffect(() => setImgReady(false), [cur])
 
   /* 原生全屏状态同步（电脑端） */
   useEffect(() => {
@@ -117,25 +162,39 @@ function Slideshow({
     >
       <div
         className={`relative overflow-hidden select-none ${
-          isFs ? 'flex-1 min-h-0 flex items-center justify-center bg-black' : 'rounded-2xl glass-card bg-white'
+          isFs
+            ? 'flex-1 min-h-0 flex items-center justify-center bg-black'
+            : 'rounded-2xl glass-card bg-white aspect-video'
         }`}
       >
+        {/* 加载中转圈（容器固定 16:9，不再坍缩成细线） */}
+        {!imgReady && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <LoaderCircle size={26} className="animate-spin" style={{ color: accent }} />
+          </div>
+        )}
         <AnimatePresence mode="wait" initial={false}>
-          <motion.img
+          <motion.div
             key={cur}
-            src={pages[cur]}
-            alt={`${title} 第 ${cur + 1} 页`}
             initial={reduce ? false : { opacity: 0, x: 28 }}
             animate={{ opacity: 1, x: 0 }}
             exit={reduce ? undefined : { opacity: 0, x: -28 }}
             transition={{ duration: 0.32, ease: 'easeOut' }}
-            className={
-              isFs
-                ? 'max-h-full max-w-full w-auto h-auto rounded-lg'
-                : 'w-full h-auto cursor-zoom-in'
-            }
-            onClick={isFs ? undefined : () => onZoom(cur)}
-          />
+            className={isFs ? 'flex items-center justify-center max-h-full min-h-0' : undefined}
+          >
+            <SmartImg
+              src={pages[cur]}
+              alt={`${title} 第 ${cur + 1} 页`}
+              eager
+              onLoad={() => setImgReady(true)}
+              onClick={isFs ? undefined : () => onZoom(cur)}
+              className={
+                isFs
+                  ? 'max-h-full max-w-full w-auto h-auto rounded-lg'
+                  : 'w-full h-auto cursor-zoom-in'
+              }
+            />
+          </motion.div>
         </AnimatePresence>
 
         <button
@@ -202,7 +261,7 @@ function Slideshow({
                 i === cur ? 'shadow-md' : 'border-transparent opacity-55 hover:opacity-90'
               }`}
             >
-              <img src={p} alt="" loading="lazy" className="w-20 md:w-24 h-auto block" />
+              <SmartImg src={p} alt="" className="h-12 md:h-14 w-auto block" />
             </button>
           ))}
         </div>
@@ -344,15 +403,14 @@ export default function WorkPdf() {
               {pages.map((src, i) => (
                 <div
                   key={src}
-                  className="rounded-2xl overflow-hidden glass-card cursor-zoom-in"
+                  className="rounded-2xl overflow-hidden glass-card cursor-zoom-in aspect-video"
                   onClick={() => setLightbox(i)}
                   role="button"
                   aria-label={`放大查看第 ${i + 1} 页`}
                 >
-                  <img
+                  <SmartImg
                     src={src}
                     alt={`${work.title} 第 ${i + 1} 页`}
-                    loading="lazy"
                     className="w-full h-auto"
                   />
                 </div>
@@ -437,9 +495,10 @@ export default function WorkPdf() {
               className="max-w-[88vw]"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <SmartImg
                 src={pages[lightbox]}
                 alt={`${work.title} 第 ${lightbox + 1} 页`}
+                eager
                 className="max-h-[86vh] max-w-[88vw] w-auto h-auto rounded-xl shadow-2xl bg-white"
               />
               <figcaption
