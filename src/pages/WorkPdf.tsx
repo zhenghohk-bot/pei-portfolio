@@ -14,7 +14,7 @@ const toMirror = (src: string) => {
   return m ? `https://cdn.jsdelivr.net/gh/zhenghohk-bot/pei-portfolio@gh-pages${m[0]}` : src
 }
 
-/* 带镜像兜底的图片组件：原地址 onError 后自动换镜像，只换一次 */
+/* 带镜像兜底的图片组件：原地址加载失败或 6 秒未加载完成（连接挂起）都自动换镜像，只换一次 */
 function SmartImg({
   src,
   alt,
@@ -31,7 +31,17 @@ function SmartImg({
   onClick?: () => void
 }) {
   const [s, setS] = useState(src)
-  useEffect(() => setS(src), [src])
+  const loadedRef = useRef(false)
+
+  useEffect(() => {
+    setS(src)
+    loadedRef.current = false
+    const t = window.setTimeout(() => {
+      if (!loadedRef.current) setS(toMirror(src))
+    }, 6000)
+    return () => window.clearTimeout(t)
+  }, [src])
+
   return (
     <img
       src={s}
@@ -39,7 +49,10 @@ function SmartImg({
       className={className}
       loading={eager ? 'eager' : 'lazy'}
       decoding="async"
-      onLoad={onLoad}
+      onLoad={() => {
+        loadedRef.current = true
+        onLoad?.()
+      }}
       onClick={onClick}
       onError={() => {
         const mirror = toMirror(src)
